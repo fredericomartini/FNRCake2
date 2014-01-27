@@ -15,13 +15,20 @@ App::uses('File', 'Utility');
 		$this->loadModel('Clube');
     }
 	
+    public $paginate = array(
+        'fields' => array('Noticia.id', 'Noticia.titulo'),
+        'order' => array('Noticia.titulo' => 'asc')
+    );	
+
 		public function index(){
-			$noticias = $this->Noticia->find('all');
-			$this->paginate['Noticia']['order'] = array(
-            'Noticia.id' => 'asc',
-            'Noticia.datahora' => 'asc');
-			$this->set('noticias', $this->paginate());
+	        $this->Paginator->settings = array(
+	            'limit' => 20,
+	            'fields' => array('Noticia.id', 'Noticia.titulo', 'datahora'),
+	        'order' => array('Noticia.titulo' => 'asc')
+	        );
+	        $this->set('noticias', $this->Paginator->paginate('Noticia'));
 		}
+
 		
 		public function add(){       
         // busca paises cadastrados
