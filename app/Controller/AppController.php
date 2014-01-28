@@ -53,7 +53,8 @@ class AppController extends Controller {
     }
       
     public function appError($error) {
-        $this->redirect(array('controller' => 'homes', 'action' => 'index'));
+      //  $this->redirect(array('controller' => 'homes', 'action' => 'index'));
+      print_r($error);
     }
     
 }

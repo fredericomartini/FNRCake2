@@ -23,7 +23,7 @@ App::uses('File', 'Utility');
 		public function index(){
 	        $this->Paginator->settings = array(
 	            'limit' => 20,
-	            'fields' => array('Noticia.id', 'Noticia.titulo', 'datahora'),
+	            'fields' => array('Noticia.id', 'Noticia.titulo', 'datahora', 'slug'),
 	        'order' => array('Noticia.titulo' => 'asc')
 	        );
 	        $this->set('noticias', $this->Paginator->paginate('Noticia'));
@@ -36,17 +36,28 @@ App::uses('File', 'Utility');
        $this->set(compact('paises'));
 
 	        if ($this->request->is('post') || $this->request->is('put')) {
-        			//FORMATA DATA E HORA de 'DD:MM:YYYY: P/ 'YYYY'MM'DD hh:mm:ss'
-					if($this->request->data['datahoras'] == 'programarHora'){
-							//TESTA SE CAMPO HORAS E MINUTOS FOI SELECIONADO
-							if($this->request->data['horas'] == '' && $this->request->data['minutos'] =='' ){
-								$this->request->data['horas'] = "00"; 
-								$this->request->data['minutos'] = "00";
-							}
-						$this->request->data['Noticia']['datahora'] = substr($this->request->data['pdatahora'],6,4) . "-" . 
-							substr($this->request->data['pdatahora'],3,2) . "-" . substr($this->request->data['pdatahora'],0,2) . " " .
-								$this->request->data['horas'] . ":" . $this->request->data['minutos'] . ":00";
-					}
+	        	//ADD SLUG
+	        	//$this->request->data['Noticia']['slug'] = $this->request->data['Noticia']['titulo'];
+	        	//debug($this->request->data['Noticia']['slug']);
+
+$slug = Inflector::slug($this->request->data['Noticia']['titulo']); // retira acentos e etc
+$slug = strtolower($slug); // passa pra minusculo
+$slug = str_replace("_", "-", $slug); // troca _ por -
+$this->request->data['Noticia']['slug'] = $slug;
+	//debug($this->request->data['Noticia']['slug']);
+//$this->redirect("/noticias/ler/".$id."/".$slug, 301, true);	        	
+	        	
+      			//FORMATA DATA E HORA de 'DD:MM:YYYY: P/ 'YYYY'MM'DD hh:mm:ss'
+				if($this->request->data['datahoras'] == 'programarHora'){
+						//TESTA SE CAMPO HORAS E MINUTOS FOI SELECIONADO
+						if($this->request->data['horas'] == '' && $this->request->data['minutos'] =='' ){
+							$this->request->data['horas'] = "00"; 
+							$this->request->data['minutos'] = "00";
+						}
+					$this->request->data['Noticia']['datahora'] = substr($this->request->data['pdatahora'],6,4) . "-" . 
+						substr($this->request->data['pdatahora'],3,2) . "-" . substr($this->request->data['pdatahora'],0,2) . " " .
+							$this->request->data['horas'] . ":" . $this->request->data['minutos'] . ":00";
+				}
 			   	//SE FOR SEM IMGEM
 				if($this->request->data['image'] == 'semImagem'){
 				      	  $this->request->data['Noticia']['img_upload'] = null;//LIMPA CAMPOS P/ IR P/ BANCO
@@ -98,23 +109,26 @@ App::uses('File', 'Utility');
 	        }	 
 		}
 		
-		public function view($id = null){
+		public function view($slug = null){
 			$this->set('title_for_layout','Noticias');
-			if($this->request->is('get')){
-				$this->set('noticia', $this->Noticia->findById($id));
-				
-				
-			}
+			//if($this->request->is('get')){
+			//	$this->set('noticia', $this->Noticia->findById($id));
+			//}
+			$this->set('noticia', $this->Noticia->find('first',array(
+																	'conditions' => array('Noticia.slug' => $slug)
+																	) ) );
 		}
 			
-		public function edit($id = null){
+		public function edit($slug = null){
 			//debug($this->request->data);
-			if (!$id) {
+			if (!$slug) {
             	throw new NotFoundException(__('Noticia Inválida!'));
         	}
 			
 			$this->Noticia->recursive = 0;
-			$noticia = $this->Noticia->findById($id);
+			//pesquisa noticia por slug
+			$noticia = $this->Noticia->find('first',array( 'conditions' => array('Noticia.slug' => $slug)) ) ;
+		
 			if(!$noticia){
 				 throw new NotFoundException(__('Noticia Inválida!'));
 			}
@@ -135,7 +149,12 @@ App::uses('File', 'Utility');
 			$this->set(compact('clubes'));
 			
 			if ($this->request->is('post') || $this->request->is('put')) {
-				$this->Noticia->id = $id;
+				$this->Noticia->id = $this->request->data['Noticia']['id'];
+//add slug
+$slug = Inflector::slug($this->request->data['Noticia']['titulo']); // retira acentos e etc
+$slug = strtolower($slug); // passa pra minusculo
+$slug = str_replace("_", "-", $slug); // troca _ por -
+$this->request->data['Noticia']['slug'] = $slug;
 				
 					//FORMATA DATAHORA em yyyy/mm/dd
  					$this->request->data['Noticia']['datahora'] = substr($this->request->data['datanoticia'],6,4) . "-" . 
@@ -160,17 +179,19 @@ App::uses('File', 'Utility');
 				
 		}
 		
-		public function edit_image($id = null){
-			if (!$id) {
+		public function edit_image($slug = null){
+			if (!$slug) {
             	throw new NotFoundException(__('Noticia Inválida!'));
         	}
-			$noticia = $this->Noticia->findById($id);
+			//pesquisa noticia por slug
+			$noticia = $this->Noticia->find('first',array( 'conditions' => array('Noticia.slug' => $slug)) ) ;
+
 			if(!$noticia){
 				 throw new NotFoundException(__('Noticia Inválida!'));
 			}
 					
 			if ($this->request->is('post') || $this->request->is('put')) {
-					$this->Noticia->id = $id;
+					$this->Noticia->id = $noticia['Noticia']['id'];
 				
 					//REMOVE REGRAS DE VALIDACAO
 					$this->Noticia->validator()->remove('cidade_id');
@@ -245,22 +266,22 @@ App::uses('File', 'Utility');
 		        	
 		}
 		
-		public function delete($id){
+		public function delete($slug){
 		 if (!$this->request->is('post')) {
 		            throw new MethodNotAllowedException();
 		        }
 		        
-		        $noticia = $this->Noticia->findById($id);
+		        $noticia = $this->Noticia->find('first',array( 'conditions' => array('Noticia.slug' => $slug)) ) ;
 		        if (!$noticia) {
 		            throw new NotFoundException(__('Noticia inválida.'));
 		        }
-		        if ($this->Noticia->delete($id)) {
+		        if ($this->Noticia->delete($noticia['Noticia']['id'])) {
 		            if (!empty($noticia['Noticia']['img_upload'])) {
 		                $arquivo = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
 		                $arquivo->delete();
 		            }
 		                      
-		            $this->Session->setFlash('Noticia com o id: ' . $id . ' foi deletado com sucesso.', 'default', array('class' => 'mensagem_sucesso'));
+		            $this->Session->setFlash('Noticia com o id: ' . $slug . ' foi deletado com sucesso.', 'default', array('class' => 'mensagem_sucesso'));
 		            $this->redirect(array('action' => 'index'));
 		        }
 		        $this->Session->setFlash('Não foi possível salvar o registro. Por favor, tente novamente..', 'default', array('class' => 'mensagem_erro'));
