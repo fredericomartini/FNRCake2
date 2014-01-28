@@ -43,3 +43,10 @@
  * the built-in default routes.
  */
 	require CAKE . 'Config' . DS . 'routes.php';
+
+/**
+ * Importa biblioteca p/ roteamento desenvolvida por Erik Figueiredo
+ * page_slug
+ */
+App::import('Lib', 'SeoRoute');
+Router::connect(':slug', array(),array('routeClass' => 'SeoRoute') );	
