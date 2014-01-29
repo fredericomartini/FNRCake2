@@ -11,6 +11,13 @@
             'className' => 'Cidade'			
         ),
     );			
+   
+//	public function beforeSave($options = array()) {
+//        if (isset($this->data[$this->alias])) {
+//            $this->data[$this->alias]['titulo'] = strtoupper($this->data[$this->alias]['sigla']);
+//        }
+//       return true;
+//    }	
 		
 		public $validate = array(
 					'titulo' => array(
@@ -37,5 +44,8 @@
 									'required' => true,
 									'message' => 'Selecionar um time, campo obrigatório')
 							);
+	
+
+								
 	}
  ?>

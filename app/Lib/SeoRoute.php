@@ -11,7 +11,7 @@ class SeoRoute extends CakeRoute
 	public $Controller_Default='Noticias';
 	
 	//A action principal que recebe a url no caso de não existir um action associado
-	public $Action_Default='view';
+	public $Action_Default='futebol';
 	
 	//Pego os controllers existentes
 	

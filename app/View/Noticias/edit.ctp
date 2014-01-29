@@ -4,6 +4,7 @@ echo $this -> Html -> script('ckeditor/ckeditor.js');
 echo $this->Html->script('jquery-ui-1.10.3.custom.js');;
 
 echo $this -> Form -> create('Noticia', array('type' => 'file'));
+echo $this -> Form -> input('id', array('id' => 'noticiaID', 'type' => 'hidden') );
 echo $this -> Form -> input('cidade_id', array('id' => 'cidadeID', 'type' => 'select', 'options' => $cidades, 'label' => 'Cidade', 'empty' => ''));
 echo $this -> Form -> input('clube_id', array('id' => 'clubeID', 'type' => 'select', 'options' => $clubes, 'empty' => ''));
 echo $this -> Form -> input('titulo');

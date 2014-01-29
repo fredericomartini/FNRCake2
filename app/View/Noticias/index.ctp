@@ -33,7 +33,7 @@
 							$datahora .= ':'.substr($noticia['Noticia']['datahora'],17,2);
 		 $rows[] = array(
             $noticia['Noticia']['id'],
-            $this->Html->link($noticia['Noticia']['titulo'], array('action' => 'view'. '/'. $noticia['Noticia']['slug'])),
+            $this->Html->link($noticia['Noticia']['titulo'], array('action' => 'futebol'. '/'. $noticia['Noticia']['slug'])),
             $datahora,	
             $this->Html->link('Editar Noticia', array('action' => 'edit'.'/'. $noticia['Noticia']['slug'] )),
             $this->Html->link('Editar Imagem', array('action' => 'edit_image'.'/'. $noticia['Noticia']['slug'] )),
