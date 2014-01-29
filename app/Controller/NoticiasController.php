@@ -2,13 +2,11 @@
 
 App::uses('File', 'Utility');
 
-	class NoticiasController extends  AppController{
+class NoticiasController extends  AppController{
 
-		//public $helpers = array('Html', 'Form', 'Js');
-		
-		function beforeFilter() {
-        $this->loadModel('Paise');
-        $this->Paise->recursive = 0;
+	function beforeFilter() {
+	    $this->loadModel('Paise');
+	    $this->Paise->recursive = 0;
 		
 		$this->loadModel('Cidade');
 		$this->Cidade->recursive = 1;
@@ -22,13 +20,13 @@ App::uses('File', 'Utility');
 
 	public function index(){
         $this->Paginator->settings = array(
-            'limit' => 20,
+            'limit'  => 20,
             'fields' => array('Noticia.id', 'Noticia.titulo', 'datahora', 'slug'),
-        'order' => array('Noticia.titulo' => 'asc')
+        	'order'  => array('Noticia.titulo' => 'asc')
         );
+        
         $this->set('noticias', $this->Paginator->paginate('Noticia'));
 	}
-
 	
 	public function add(){       
     // busca paises cadastrados
@@ -36,24 +34,20 @@ App::uses('File', 'Utility');
    	$this->set(compact('paises'));
 
         if ($this->request->is('post') || $this->request->is('put')) {
-        	
-        	//ADD SLUG
-			$slug = Inflector::slug($this->request->data['Noticia']['titulo']); // retira acentos e coloca _ onde palavra separada
-			$slug = strtolower($slug); // passa pra minusculo
-			$slug = str_replace("_", "-", $slug); // troca _ por -
-			
-			$this->request->data['Noticia']['slug'] = $slug;
 
-  			//FORMATA DATA E HORA de 'DD:MM:YYYY: P/ 'YYYY'MM'DD hh:mm:ss'
+  			//formata data e hora de 'DD:MM:YYYY: p/ 'YYYY'MM'DD hh:mm:ss'
 			if($this->request->data['datahoras'] == 'programarHora'){
-					//TESTA SE CAMPO HORAS E MINUTOS FOI SELECIONADO
+					//se campo horas e minutos for vazio coloca horas 00 & minutos 00
 					if($this->request->data['horas'] == '' && $this->request->data['minutos'] =='' ){
-						$this->request->data['horas'] = "00"; 
+						$this->request->data['horas']   = "00"; 
 						$this->request->data['minutos'] = "00";
 					}
+				//pdatahora entra no formato: DD/MM/YYYY e é transformado p/ YYYY-DD-MM 00:00:00 padrao americano
 				$this->request->data['Noticia']['datahora'] = substr($this->request->data['pdatahora'],6,4) . "-" . 
 					substr($this->request->data['pdatahora'],3,2) . "-" . substr($this->request->data['pdatahora'],0,2) . " " .
 						$this->request->data['horas'] . ":" . $this->request->data['minutos'] . ":00";
+//					substr($this->request->data['pdatahora'],3,2) . "-" . substr($this->request->data['pdatahora'],0,2) . " " .
+//						$this->request->data['horas'] . ":" . $this->request->data['minutos'] . ":00";
 			}
 		   	//SE FOR SEM IMGEM
 			if($this->request->data['image'] == 'semImagem'){
@@ -152,12 +146,6 @@ App::uses('File', 'Utility');
 		//RECEBE A REQUISICAO P/ SALVAR
 		if ($this->request->is('post') || $this->request->is('put')) {
 			$this->Noticia->id = $this->request->data['Noticia']['id'];
-
-//add slug
-$slug = Inflector::slug($this->request->data['Noticia']['titulo']); // retira acentos e etc
-$slug = strtolower($slug); // passa pra minusculo
-$slug = str_replace("_", "-", $slug); // troca _ por -
-$this->request->data['Noticia']['slug'] = $slug;
 			
 				//FORMATA DATAHORA em yyyy/mm/dd
 				$this->request->data['Noticia']['datahora'] = substr($this->request->data['datanoticia'],6,4) . "-" . 
@@ -172,7 +160,7 @@ $this->request->data['Noticia']['slug'] = $slug;
 						$this->Session->setFlash('Noticia alterada com sucesso!', 'default', array('class' => 'mensagem_sucesso'));
 					  	$this->redirect(array('action' => 'index'));
 				}
-		 	   else{
+		 	    else{
 					$this->Session->setFlash('Não foi possível alterar o registro. Por favor, tente novamente..', 'default', array('class' => 'mensagem_erro'));
 			   }
         }
@@ -270,25 +258,26 @@ $this->request->data['Noticia']['slug'] = $slug;
 	}
 	
 	public function delete($slug){
-	 if (!$this->request->is('post')) {
-	            throw new MethodNotAllowedException();
-	        }
+	if (!$this->request->is('post')) {
+		throw new MethodNotAllowedException();
+	}
 	        
-	        $noticia = $this->Noticia->find('first',array( 'conditions' => array('Noticia.slug' => $slug)) ) ;
-	        if (!$noticia) {
-	            throw new NotFoundException(__('Noticia inválida.'));
-	        }
-	        if ($this->Noticia->delete($noticia['Noticia']['id'])) {
-	            if (!empty($noticia['Noticia']['img_upload'])) {
-	                $arquivo = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
-	                $arquivo->delete();
-	            }
-	                      
-	            $this->Session->setFlash('Noticia com o id: ' . $slug . ' foi deletado com sucesso.', 'default', array('class' => 'mensagem_sucesso'));
-	            $this->redirect(array('action' => 'index'));
-	        }
-	        $this->Session->setFlash('Não foi possível salvar o registro. Por favor, tente novamente..', 'default', array('class' => 'mensagem_erro'));
-	        $this->redirect(array('action' => 'index'));
+        $noticia = $this->Noticia->find('first',array( 'conditions' => array('Noticia.slug' => $slug)) ) ;
+        //sem noticia
+        if (!$noticia) {
+            throw new NotFoundException(__('Noticia inválida.'));
+        }
+        if ($this->Noticia->delete($noticia['Noticia']['id'])) {
+            if (!empty($noticia['Noticia']['img_upload'])) {
+                $arquivo = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
+                $arquivo->delete();
+            }
+                      
+            $this->Session->setFlash('Noticia com o titulo: ' . $noticia['Noticia']['titulo'] . ' foi deletado com sucesso.', 'default', array('class' => 'mensagem_sucesso'));
+            $this->redirect(array('action' => 'index'));
+        }
+        $this->Session->setFlash('Não foi possível salvar o registro. Por favor, tente novamente..', 'default', array('class' => 'mensagem_erro'));
+        $this->redirect(array('action' => 'index'));
 	}
 }
  ?>
