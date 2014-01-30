@@ -21,29 +21,91 @@ class Noticia extends  AppModel{
         //add slug
         if (isset($this->data[$this->alias]['titulo'])) {
 			//add slug
-			$slug = Inflector::slug($this->data[$this->alias]['titulo']); // retira acentos e etc
+
+        }
+      /* 
+        //validar p/ ver se ja nao tem outro igual 
+        if(isset($this->data[$this->alias]['slug'])){
+        	
+			//se nao for definido o id.. registro novo
+	    	if(! isset($this->data[$this->alias]['id'] ) ){
+				//procura noticia por slug
+				$noticia = $this->find('first',array( 'conditions' => array('Noticia.slug' => $this->data[$this->alias]['slug'] ) ) );
+		    	if($noticia){
+		    		return FALSE;
+		    	}
+	    	}
+	    	//se id for definido. edicao verificar se ja existe algum slug com o informado
+	    	else{
+		    	if( (isset($this->data[$this->alias]['id'] ) )  && (isset($this->data[$this->alias]['slug'] ))){
+					//procura noticia por slug
+					$noticia = $this->find('first',array( 'conditions' => array('Noticia.slug' => $this->data[$this->alias]['slug'] ) ) );
+			    	if($noticia){
+			    		//verificar se é o mesmo id se for pode editar se nao .. nao pode este titulo pois ja existe noticia
+			    		//se noticia no banco é igual a que esta editando
+			    		if($noticia['Noticia']['id'] != $this->data[$this->alias]['id']){
+			    			return FALSE;
+			    		}
+			    	}
+		    	}
+	    	}
+        }
+        */
+     return true;  	
+	}
+    
+    
+	/*
+	 * verifica se ja existe alguma noticia cadastrada com o slug / titulo informado
+	 * 
+	 */
+	public function validaSlug($dados){
+		if(isset($dados['Noticia']['titulo'])){
+			//add slug
+			$slug = Inflector::slug($dados['Noticia']['titulo']); // retira acentos e etc
+			$slug = strtolower($slug); // passa pra minusculo
+			$slug = str_replace("_", "-", $slug); // troca _ por -		
+			
+	    	//se nao for definido o id.. esta editando logo pode ser o mesmo titulo
+	    	if(! isset($dados['Noticia']['id']) ){
+	    		$noticia = $this->find('first',array( 'conditions' => array('Noticia.slug' => $slug) ) );
+		    	if($noticia){
+		    		return FALSE;
+		    	}
+		    	else{
+		    		return TRUE;
+		    	}
+	    	}				
+		}
+		
+		if(isset($this->data[$this->alias]['slug'] ) ){
+	    	
+		} 		
+	}
+
+	public function addSlug($dados){
+		if(isset($dados['Noticia']['titulo']) && $dados['Noticia']['titulo'] != '' ){
+			
+			$slug = Inflector::slug($dados['Noticia']['titulo']); // retira acentos e etc
 			$slug = strtolower($slug); // passa pra minusculo
 			$slug = str_replace("_", "-", $slug); // troca _ por -
 
-            $this->data[$this->alias]['slug'] = $slug;
-        }
-		//valida titulo p/ se ja existe dar erro
-		if(isset($this->data[$this->alias]['titulo'] ) ){
-			//debug(find);
-			//$noticia  = Noticia->find('first',array( 'conditions' => array('Noticia.slug' => $this->data[$this->alias]['slug'] ) ) );
-			//if($noticia)
-			//	$this->Session->setFlash('Já existe notícia com este título!', 'default', array('class' => 'mensagem_erro'));
-				//throw new NotFoundException(__('Noticia Inválida!'));
-		}        
-        
-       return true;
-    }	
-
-		
+            return $slug;		
+		}
+	}
+	
 	public $validate = array(
+
 							'titulo' => array(
-										'rule' => 'notEmpty',
-										'message' => 'O campo não pode ser vazio!' ),
+											  'notEmpty' => array(
+																 'rule' 	 => 'notEmpty',
+																 'message'   =>'O campo não pode ser vazio!'),
+											  'unico'	 => array( 
+														    	 'rule' 	 => array('isUnique',true),
+																 'message'   =>'Já existe título com este nome!') ) ,
+							'slug' => array(
+										'rule' => 'isUnique',
+										'message' => 'Já existe título com este nome!' ),
 										
 							'corpo' => array(
 										'rule' => 'notEmpty',
@@ -67,6 +129,5 @@ class Noticia extends  AppModel{
 											'required' => true,
 					 						'message' => 'Selecionar um time, campo obrigatório' )
 					    	);
-								
 }
  ?>

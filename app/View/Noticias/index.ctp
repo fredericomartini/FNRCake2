@@ -33,10 +33,14 @@
 							$datahora .= ':'.substr($noticia['Noticia']['datahora'],17,2);
 		 $rows[] = array(
             $noticia['Noticia']['id'],
-            $this->Html->link($noticia['Noticia']['titulo'], array('action' => 'futebol'. '/'. $noticia['Noticia']['slug'])),
+            $this->Html->link($noticia['Noticia']['titulo'], array('action' => 'futebol'. '/'. $noticia['Noticia']['slug'],
+            													   'ext'	=> 'html' )),
             $datahora,	
-            $this->Html->link('Editar Noticia', array('action' => 'edit'.'/'. $noticia['Noticia']['slug'] )),
-            $this->Html->link('Editar Imagem', array('action' => 'edit_image'.'/'. $noticia['Noticia']['slug'] )),
+            $this->Html->link('Editar Noticia', array('action' => 'edit'.'/'. $noticia['Noticia']['slug'],
+            										  'ext'	   => 'html')),
+            
+            $this->Html->link('Editar Imagem', array('action' => 'edit_image'.'/'. $noticia['Noticia']['slug'],
+            										 'ext'	  => 'html')),
             $this->Form->postLink('Apagar',array('action' => 'delete', $noticia['Noticia']['slug']),array('confirm' => 'Você realmete deseja apagar essa Notícia?')),
         );
     endforeach;
