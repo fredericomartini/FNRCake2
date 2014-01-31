@@ -3,9 +3,6 @@
 <?php 
 echo $this->Html->script('ckeditor/ckeditor.js');
 echo $this->Html->script('ckeditor/config.js');
-//echo $this->Html->css('contents.css');
-echo $this->Html->script('jquery-ui-1.10.3.custom.js');
-
 
 echo $this->Form->create('Noticia', array('type' => 'file'));
 echo $this->Form->input('pais', array ('id' => 'paisID', 'type' => 'select', 'options' => $paises, 'label' => 'País', 'empty' => ''));
@@ -36,9 +33,7 @@ echo $this->Form->input('clube_id', array('id' => 'clubeID' , 'type' => 'select'
 		</table>
 	</div>
 	<div id="upload" style="display: none;">
-		<?php //echo $this->Form->input('img_upload', array('id' => 'imagemUpload', 'type' => 'file', 'class' => 'file', 'label' => 'Upload Imagem')); 
-			echo $this->Form->input('imagemUpload', array('id' =>'imagemUpload', 'type' => 'file','class' => 'file','label' => 'Upload Imagem'));
-		?>
+<?php		echo $this->Form->input('imagemUpload', array('id' =>'imagemUpload', 'type' => 'file','class' => 'file','label' => 'Upload Imagem')); ?>
 	</div>
 	<div id="url" style="display: none;">
 		<?php echo $this->Form->input('img_url', array('id' => 'imagemUrl', 'label' => 'Url Imagem')); ?>	  
