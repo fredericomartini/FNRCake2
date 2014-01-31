@@ -1,7 +1,6 @@
 <h1>Noticias > Editar Noticia</h1>
 <?php
 echo $this -> Html -> script('ckeditor/ckeditor.js');
-echo $this->Html->script('jquery-ui-1.10.3.custom.js');;
 
 echo $this -> Form -> create('Noticia', array('type' => 'file'));
 echo $this -> Form -> input('id', array('id' => 'noticiaID', 'type' => 'hidden') );
