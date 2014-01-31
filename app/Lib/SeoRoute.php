@@ -1,6 +1,9 @@
 <?php
 
 //App::uses('Seo', 'Model');
+/**
+ * script desenvolvido por Erik Figueiredo
+ */
 
 class SeoRoute extends CakeRoute
 {
