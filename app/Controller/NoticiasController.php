@@ -18,6 +18,8 @@ class NoticiasController extends  AppController{
         'order' => array('Noticia.titulo' => 'asc')
     );	
 
+
+	
 	public function index(){
         $this->Paginator->settings = array(
             'limit'  => 20,
@@ -35,6 +37,9 @@ class NoticiasController extends  AppController{
 
 	
         if ($this->request->is('post') || $this->request->is('put')) {
+
+			//add slug
+			$this->request->data['Noticia']['slug'] = $this->Noticia->addSlug($this->request->data);
 			
 			//validacao p/ ver se ja existe alguma noticia com o mesmo slug
 	  			//formata data e hora de 'DD:MM:YYYY: p/ 'YYYY'MM'DD hh:mm:ss'
@@ -72,6 +77,7 @@ class NoticiasController extends  AppController{
 					                	if ($this->request->data['Noticia']['imagemUpload']['error'] == 0) {
 	
 						                	$nome_arquivo = "not_" . $id . "." . substr($this->request->data['Noticia']['imagemUpload']['type'],6,4);
+						                	
 						                    $arquivo = new File($this->request->data['Noticia']['imagemUpload']['tmp_name'],false);
 						                    $imagem = $arquivo->read();
 						                    $arquivo->close();
@@ -82,12 +88,14 @@ class NoticiasController extends  AppController{
 					                    }
 					                    $this->request->data['Noticia']['img_upload'] = $nome_arquivo;
 					                }
-				                $this->Session->setFlash('Noticia salva com sucesso!', 'default', array('class' => 'mensagem_sucesso'));
-				                $this->redirect(array('action' => 'index'));
+				                //$this->Session->setFlash('Noticia salva com sucesso!', 'default', array('class' => 'mensagem_sucesso'));
+				                //$this->redirect(array('action' => 'index'));
 					                
 				            }
 							 else {
 				                $this->Session->setFlash('Não foi possível salvar o registro. Por favor, tente novamente..', 'default', array('class' => 'mensagem_erro'));
+												
+				                
 				            }
 				}
 				//SE FOR URL
@@ -122,15 +130,16 @@ class NoticiasController extends  AppController{
 */		        			        	
         }	 
 	}
+	
 	/*
 	 * alterado nome da funcao era VIEW
 	 */
 	public function futebol($slug = null){
-		$this->set('title_for_layout','Noticias');
 		$noticia = $this->Noticia->find('first',array( 'conditions' => array('Noticia.slug' => str_ireplace('.html', '', $slug) )) ) ;
 		if(!$noticia){
 			throw new NotFoundException(__('Noticia Inválida!'));
 		}
+		$this->set('title_for_layout','Noticias');
 		$this->set('noticia', $noticia);
 	}
 
@@ -166,7 +175,7 @@ class NoticiasController extends  AppController{
 												  						'Clube.cidade_id' => $noticia['Noticia']['cidade_id'] )));
 		$this->set(compact('clubes'));
 		
-		//RECEBE A REQUISICAO P/ SALVAR
+		//se requisicao é p/ salvar
 		if ($this->request->is('post') || $this->request->is('put')) {
 			$this->Noticia->id = $this->request->data['Noticia']['id'];
 			//add slug
@@ -190,10 +199,10 @@ class NoticiasController extends  AppController{
 					$this->Session->setFlash('Não foi possível alterar. Por favor, tente novamente..', 'default', array('class' => 'mensagem_erro'));
 			   }
         }
-	        if (!$this->request->data) {
-	            $this->request->data = $noticia;
-        	}		
-			
+        //mantem dados form
+	    if (!$this->request->data) {
+	        $this->request->data = $noticia;
+    	}		
 	}
 	
 	public function edit_image($slug = null){
@@ -207,80 +216,81 @@ class NoticiasController extends  AppController{
 			 throw new NotFoundException(__('Noticia Inválida!'));
 		}
 				
-		if ($this->request->is('post') || $this->request->is('put')) {
-				$this->Noticia->id = $noticia['Noticia']['id'];
+		if($this->request->is('post') || $this->request->is('put')) {
+			$this->Noticia->id = $noticia['Noticia']['id'];
 			
-				//REMOVE REGRAS DE VALIDACAO
-				$this->Noticia->validator()->remove('cidade_id');
-				$this->Noticia->validator()->remove('clube_id');
-				$this->Noticia->validator()->remove('titulo');
-				$this->Noticia->validator()->remove('corpo');
-				//SE FOR SEM IMGEM
-				if($this->request->data['image'] == 'semImagem'){
-					// Apaga a imagem antiga
-	                if (!empty($noticia['Noticia']['img_upload'])) {
-	                    $img_antiga = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
-	                    $img_antiga->delete();
-	                }
-				      	  $this->request->data['Noticia']['img_upload'] = null;//LIMPA CAMPOS P/ IR P/ BANCO
-						  $this->request->data['Noticia']['img_url'] = null;	
-				      	  $this->Noticia->validator()->remove('imagemUpload'); //REMOVE REGRAS DE VALIDACAO
-				     	  $this->Noticia->validator()->remove('img_url');
-				}
-				//SE FOR UPLOAD
-				else if($this->request->data['image'] == 'uploadImagem'){
-	                
-							$this->Noticia->validator()->remove('img_url'); //REMOVE VALIDACAO URL
-							$this->request->data['Noticia']['img_url'] = null; //LIMPA ARRAY
-					                $id = $this->Noticia->id;
+			//REMOVE REGRAS DE VALIDACAO
+			$this->Noticia->validator()->remove('cidade_id');
+			$this->Noticia->validator()->remove('clube_id');
+			$this->Noticia->validator()->remove('titulo');
+			$this->Noticia->validator()->remove('corpo');
+			
+			//opcao sem imagem
+			if($this->request->data['image'] == 'semImagem'){
+				// Apaga a imagem antiga
+                if (!empty($noticia['Noticia']['img_upload'])) {
+                    $img_antiga = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
+                    $img_antiga->delete();
+                }
+		      	  $this->request->data['Noticia']['img_upload'] = null;//LIMPA CAMPOS P/ IR P/ BANCO
+				  $this->request->data['Noticia']['img_url'] = null;	
+		      	  $this->Noticia->validator()->remove('imagemUpload'); //REMOVE REGRAS DE VALIDACAO
+		     	  $this->Noticia->validator()->remove('img_url');
+			}
+			//opcao upload
+			else if($this->request->data['image'] == 'uploadImagem'){
+                
+						$this->Noticia->validator()->remove('img_url'); //REMOVE VALIDACAO URL
+						$this->request->data['Noticia']['img_url'] = null; //LIMPA ARRAY
+				                $id = $this->Noticia->id;
 
-					            if ($this->request->data['Noticia']['imagemUpload']['error'] == 0){ //SE NAO TIVER ERRO AO FAZER UPLOAD
-					                // Apaga a imagem antiga
-					                if (!empty($noticia['Noticia']['img_upload'])) {
-					                    $img_antiga = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
-					                    $img_antiga->delete();
-					                }
-					                // Insere a imagem nova
-					                	$nome_arquivo = "not_" . $id . "." . substr($this->request->data['Noticia']['imagemUpload']['type'],6,4);
-					                    $arquivo = new File($this->request->data['Noticia']['imagemUpload']['tmp_name'],false);
-					                    $imagem = $arquivo->read();
-					                    $arquivo->close();
-					                    $arquivo = new File(WWW_ROOT.'img/noticias/images/' . $nome_arquivo, false ,0777);
-					                    if($arquivo->create()) {
-					                        $arquivo->write($imagem);
-					                        $arquivo->close();
-					                	}
-					                $this->request->data['Noticia']['img_upload'] = $nome_arquivo;
-					            } //SE TIVER IMG EM CAMPO HIDDEN
-					            else if(!empty($this->request->data['Noticia']['img_upload'])){
-					            	$this->Noticia->validator()->remove('imagemUpload'); //REMOVE VALIDACAO URL
-									$this->request->data['Noticia']['imagemUpload'] = null; //LIMPA ARRAY
-								}
-				}
-				//SE FOR URL
-				else if($this->request->data['image'] == 'urlImagem'){
-					// Apaga a imagem antiga
-	                if (!empty($noticia['Noticia']['img_upload'])) {
-	                    $img_antiga = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
-	                    $img_antiga->delete();
-	                }	
-					$this->Noticia->validator()->remove('imagemUpload'); //REMOVE REGRAS DE VALIDACAO
-					$this->request->data['Noticia']['img_upload'] = null;
-				}
-				    //TENTA SALVAR
-				    if($this->Noticia->save($this->request->data)){
-							$this->Session->setFlash('Imagem alterada com sucesso!', 'default', array('class' => 'mensagem_sucesso'));
-						  	$this->redirect(array('action' => 'index'));
-					}
-			 	   else{
-						$this->Session->setFlash('Não foi possível alterar a imagem. Por favor, tente novamente..', 'default', array('class' => 'mensagem_erro'));
-				   }
-					
-	        }
-		        if (!$this->request->data) {
-		            $this->request->data = $noticia;
-	        	}		
-	        	
+				            if ($this->request->data['Noticia']['imagemUpload']['error'] == 0){ //SE NAO TIVER ERRO AO FAZER UPLOAD
+				                // Apaga a imagem antiga
+				                if (!empty($noticia['Noticia']['img_upload'])) {
+				                    $img_antiga = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
+				                    $img_antiga->delete();
+				                }
+				                // Insere a imagem nova
+				                	$nome_arquivo = "not_" . $id . "." . substr($this->request->data['Noticia']['imagemUpload']['type'],6,4);
+				                    $arquivo = new File($this->request->data['Noticia']['imagemUpload']['tmp_name'],false);
+				                    $imagem = $arquivo->read();
+				                    $arquivo->close();
+				                    $arquivo = new File(WWW_ROOT.'img/noticias/images/' . $nome_arquivo, false ,0777);
+				                    if($arquivo->create()) {
+				                        $arquivo->write($imagem);
+				                        $arquivo->close();
+				                	}
+				                $this->request->data['Noticia']['img_upload'] = $nome_arquivo;
+				            } //SE TIVER IMG EM CAMPO HIDDEN
+				            else if(!empty($this->request->data['Noticia']['img_upload'])){
+				            	$this->Noticia->validator()->remove('imagemUpload'); //REMOVE VALIDACAO URL
+								$this->request->data['Noticia']['imagemUpload'] = null; //LIMPA ARRAY
+							}
+			}
+			//opcao url
+			else if($this->request->data['image'] == 'urlImagem'){
+				// Apaga a imagem antiga
+                if (!empty($noticia['Noticia']['img_upload'])) {
+                    $img_antiga = new File(WWW_ROOT.'img/noticias/images/' . $noticia['Noticia']['img_upload'], true, 0755);
+                    $img_antiga->delete();
+                }	
+				$this->Noticia->validator()->remove('imagemUpload'); //REMOVE REGRAS DE VALIDACAO
+				$this->request->data['Noticia']['img_upload'] = null;
+			}
+		    //TENTA SALVAR
+		    if($this->Noticia->save($this->request->data)){
+					$this->Session->setFlash('Imagem alterada com sucesso!', 'default', array('class' => 'mensagem_sucesso'));
+				  	$this->redirect(array('action' => 'index'));
+			}
+	 	   else{
+				$this->Session->setFlash('Não foi possível alterar a imagem. Por favor, tente novamente..', 'default', array('class' => 'mensagem_erro'));
+		   }
+				
+        }
+		//mantem dados form
+        if (!$this->request->data) {
+            $this->request->data = $noticia;
+    	}		
 	}
 	
 	public function delete($slug){

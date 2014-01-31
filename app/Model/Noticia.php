@@ -17,13 +17,14 @@ class Noticia extends  AppModel{
    	 * PEGA O TITULO E FORMATA NO PADRAO:
    	 * texto-em-minusculo-separdo-por-hifen
    	 */
+/* 
 	public function beforeSave($options = array() ) {
         //add slug
         if (isset($this->data[$this->alias]['titulo'])) {
 			//add slug
 
         }
-      /* 
+      
         //validar p/ ver se ja nao tem outro igual 
         if(isset($this->data[$this->alias]['slug'])){
         	
@@ -50,38 +51,10 @@ class Noticia extends  AppModel{
 		    	}
 	    	}
         }
-        */
+        
      return true;  	
 	}
-    
-    
-	/*
-	 * verifica se ja existe alguma noticia cadastrada com o slug / titulo informado
-	 * 
-	 */
-	public function validaSlug($dados){
-		if(isset($dados['Noticia']['titulo'])){
-			//add slug
-			$slug = Inflector::slug($dados['Noticia']['titulo']); // retira acentos e etc
-			$slug = strtolower($slug); // passa pra minusculo
-			$slug = str_replace("_", "-", $slug); // troca _ por -		
-			
-	    	//se nao for definido o id.. esta editando logo pode ser o mesmo titulo
-	    	if(! isset($dados['Noticia']['id']) ){
-	    		$noticia = $this->find('first',array( 'conditions' => array('Noticia.slug' => $slug) ) );
-		    	if($noticia){
-		    		return FALSE;
-		    	}
-		    	else{
-		    		return TRUE;
-		    	}
-	    	}				
-		}
-		
-		if(isset($this->data[$this->alias]['slug'] ) ){
-	    	
-		} 		
-	}
+ */   
 
 	public function addSlug($dados){
 		if(isset($dados['Noticia']['titulo']) && $dados['Noticia']['titulo'] != '' ){
@@ -102,10 +75,19 @@ class Noticia extends  AppModel{
 																 'message'   =>'O campo não pode ser vazio!'),
 											  'unico'	 => array( 
 														    	 'rule' 	 => array('isUnique',true),
-																 'message'   =>'Já existe título com este nome!') ) ,
-							'slug' => array(
-										'rule' => 'isUnique',
-										'message' => 'Já existe título com este nome!' ),
+																 'message'   =>'Já existe Notícia com este título!')),
+	  					     'slug'	 => array( 
+									    	 'rule' 	 => 'isUnique',
+											 'message'   =>'Já existe Notícia com este título!'),
+
+/*
+											  'slug'	 => array(
+											  					  'rule'	 => array('validaSlug', 'slug'),
+											  					  'message'	 =>	'Já existe título com este nome!' )) , */
+
+/*							'titulo' => array(
+											  'rule' => array('validaSlug', 'slug'),
+															 'message' => 'Já existe título com este nome!'),*/
 										
 							'corpo' => array(
 										'rule' => 'notEmpty',
@@ -129,5 +111,16 @@ class Noticia extends  AppModel{
 											'required' => true,
 					 						'message' => 'Selecionar um time, campo obrigatório' )
 					    	);
+					    	
+	public function afterValidate(){
+		//se ocorrer erro no campo slug
+		if(array_key_exists('slug', $this->validationErrors)){
+			//se nao tiver ocorrido o erro em titulo
+			if(!array_key_exists('titulo', $this->validationErrors)){
+				//invalida o campo titulo e add a msg de erro do campo slug
+				$this->invalidate('titulo',$this->validationErrors['slug'][0] );	
+			}
+		}
+	}					    	
 }
  ?>

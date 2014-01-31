@@ -19,7 +19,8 @@
         echo "<br><br>";
     }
     ?>
-
+     <br />
+	 <p>Rodapé:<?php echo $noticia['Noticia']['rodape']; ?></p>
 <?php 
 	 echo $this->Html->link($this->Html->image("voltar.png", array("title" => "Voltar")), array('controller' => 'Noticias', 'action' => 'index'), array('escape' => false) );
 ?>
