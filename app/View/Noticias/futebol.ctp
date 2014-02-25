@@ -21,6 +21,9 @@
     ?>
      <br />
 	 <p>Rodapé:<?php echo $noticia['Noticia']['rodape']; ?></p>
+	
+  		 <!-- PLUGN P/ COMENTARIOS C/ O LOGIN DO FACEBOOK, DEVE SER INCLUIDO O FACEBOOK SDK NA TAG BODY -->
+		  <div class="fb-comments" data-href="https://www.facebook.com/futebolnarede" data-width="400" data-numposts="5" data-colorscheme="light"></div>	 
 <?php 
 	 echo $this->Html->link($this->Html->image("voltar.png", array("title" => "Voltar")), array('controller' => 'Noticias', 'action' => 'index'), array('escape' => false) );
 ?>
