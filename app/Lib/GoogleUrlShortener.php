@@ -2,16 +2,18 @@
 /**
  * Google URL Shortener usando Google API e Stream Context
  *
- * @param  mixed|string $url
- *
- * @return string
+ *Classe responsável por encurtar uma url através da API do google
  */
 class GoogleUrlShortener 
 {
-	
-	//O controller principal que recebe a url no caso de não existir um controller associado
-	//Sem o Controller.php, ou seja para PagesController.php, apenas o Pages
-	
+
+/**
+ * @param  mixed|string $url
+ * 
+ * @uses  $shortenUrl('UrlParaSerEncurtada');
+ * @return object(stdClass) c/ kind => 'urlshortener#url' id => 'http://goo.gl/YRsXlP' longUrl => 'http://localhost/FNRCake2/'
+ * onde id => e a url encurtada e longUrl => e a url completa. 
+ */	
 function shortenUrl( $url ){
 
     $opts = array( 'http' => array( 'method'  => 'POST',
