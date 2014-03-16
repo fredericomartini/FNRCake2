@@ -1,6 +1,8 @@
 <?php 
 
 App::uses('File', 'Utility');
+App::uses('GoogleUrlShortener', 'Lib');
+
 
 class NoticiasController extends  AppController{
 
@@ -110,7 +112,11 @@ class NoticiasController extends  AppController{
 		if(!$noticia){
 			throw new NotFoundException(__('Noticia Inválida!'));
 		}
-		$this->set('title_for_layout','Noticias');
+		//cria um encurtador de Url
+	   	$shorUrl = new GoogleUrlShortener();
+        $noticia['url_shortened']  = $shorUrl->shortenUrl($_SERVER['HTTP_HOST'].$this->here)->id; //chama o metodo p/ encurtar url passando a localização atual
+		
+		$this->set('title_for_layout',$noticia['Noticia']['titulo']);
 		$this->set('noticia', $noticia);
 	}
 
