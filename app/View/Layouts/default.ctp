@@ -17,21 +17,55 @@
 		//echo $this->Html->meta('icon');
 
 		echo $this->Html->css('fnrcake');
-                echo $this->Html->css('jquery-ui-1.10.3.custom');
-                
-                echo $this->Html->script(array('jquery.js', 'gerais.js', 'jquery-ui.js', 'jquery.maskedinput.min.js'));
+        echo $this->Html->css('jquery-ui-1.10.3.custom');
+               
+        echo $this->Html->script(array('jquery.js', 'gerais.js', 'jquery-ui.js', 'jquery.maskedinput.min.js'));
                 
 		echo $this->fetch('meta');
 		echo $this->fetch('css');
-                echo $this->fetch('script');
+        echo $this->fetch('script');
                 
 	?>
     
-        
-    
+<?//********************META tags facebook********************************?>
+	<meta property="og:image" content="http://davidwalsh.name/wp-content/themes/klass/img/facebooklogo.png"/> <?// O tamanho máximo da imagem é 100 x 100 pixels, e o mínimo 50 x 50?>
+ 	<meta property="og:title" content=<?echo str_replace(" ", "&nbsp;", $title_for_layout); //titulo da noticia vem do controller?> />
+	<meta property="og:url" content=<?echo "http://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']; //url completa?> />  
+	<meta property="og:type" content="website" />  <?//objeto tipo de conteudo facebook disponibiliza alguns: https://developers.facebook.com/docs/reference/opengraph/ ?>
+	<meta property="fb:admins" content="100002554224559"/> <?//id do administrador do facebook possivel pegar atraves de: http://graph.facebook.com/NOME_DO_USUARIO_FACEBOOK ?>
+	<meta property="fb:app_id" content="1415240475396900" /> <?//id do app criado possivel pegar atraves de: https://developers.facebook.com/apps/ ?>
+<?//********************META tags facebook********************************?> 
+  
     
 </head>
+
 <body>
+<?//********************SDK facebook********************************?>
+
+	<div id="fb-root"></div>
+	<script>(function(d, s, id) {
+	  var js, fjs = d.getElementsByTagName(s)[0];
+	  if (d.getElementById(id)) return;
+	  js = d.createElement(s); js.id = id;
+	  js.src = "//connect.facebook.net/pt_BR/all.js#xfbml=1&appId=1415240475396900"; 
+	  fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+
+<?//********************SDK facebook********************************?>
+	
+<?//********************GOOGLE PLUS SCRIPT ********************************?>
+		<script type="text/javascript">
+	  window.___gcfg = {lang: 'pt-BR'};
+	
+	  (function() {
+	    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+	    po.src = 'https://apis.google.com/js/platform.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+	  })();
+	</script>
+			
+<?//********************GOOGLE PLUS SCRIPT ********************************?>    
+
     <div id="container">
         <div id="topo">
             <?php
@@ -60,15 +94,5 @@
     </div>
     <div id="copyright">&copy; 2013 - <a href="http://www.bemobile.cc" target="_blank">BeMobile</a></div>
     <?php echo $this->Js->writeBuffer();?>
-
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-	  var js, fjs = d.getElementsByTagName(s)[0];
-	  if (d.getElementById(id)) return;
-	  js = d.createElement(s); js.id = id;
-	  js.src = "//connect.facebook.net/pt_BR/all.js#xfbml=1";
-	  fjs.parentNode.insertBefore(js, fjs);
-	}(document, 'script', 'facebook-jssdk'));
-</script>    
 </body>
 </html>
